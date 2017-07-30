@@ -16,7 +16,7 @@ using Sandbox.Game.EntityComponents;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using VRage.Game.ObjectBuilders.Definitions;
 
-namespace SpaceEngineers
+namespace Logger
 {
     public sealed class Program : MyGridProgram
     {
@@ -25,26 +25,29 @@ namespace SpaceEngineers
         //////////////////////////BEGIN//////////////////////////////////////////
         //=======================================================================
 
+        IMyTextPanel display;
+
         public Program()
         {
-            // The constructor, called only once every session and
-            // always before any other method is called. Use it to
-            // initialize your script.
+            display = GridTerminalSystem.GetBlockWithName("logPanel") as IMyTextPanel;
+            display.WritePublicTitle("Log");
+            display.WritePublicText(Storage);
+            this.Log("Log started");
         }
 
-        public void Main(string args)
+        private void Log(string msg)
         {
+            display.WritePublicText(DateTime.Now.ToString("h:mm:ss") + " " + msg + "\r\n", true);
+        }
 
+        public void Main(string msg)
+        {
+            this.Log(msg);
         }
 
         public void Save()
         {
-            // Called when the program needs to save its state. Use
-            // this method to save your state to the Storage field
-            // or some other means.
-
-            // This method is optional and can be removed if not
-            // needed.
+            Storage = display.GetPublicText();
         }
 
         //=======================================================================
