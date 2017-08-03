@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Broker.cs" />
+    <Compile Include="SoundAlarm.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="LCDSharedMemory.cs" />
     <Compile Include="Main.cs" />
   </ItemGroup>
   <ItemGroup>

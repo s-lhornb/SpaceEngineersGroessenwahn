@@ -31,7 +31,7 @@ namespace Logger
         {
             display = GridTerminalSystem.GetBlockWithName("logPanel") as IMyTextPanel;
             display.WritePublicTitle("Log");
-            display.WritePublicText(Storage);
+            display.WritePublicText(Me.CustomData);
             this.Log("Log started");
         }
 
@@ -47,7 +47,7 @@ namespace Logger
 
         public void Save()
         {
-            Storage = display.GetPublicText();
+            Me.CustomData = display.GetPublicText();
         }
 
         //=======================================================================

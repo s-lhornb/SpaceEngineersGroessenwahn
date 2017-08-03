@@ -23,51 +23,55 @@ namespace Broker
 #endif
         IMyProgrammableBlock log;
         List<String> subs = new List<String>();
-        String state = "calm";
 
         public Program()
         {
             log = GridTerminalSystem.GetBlockWithName("log") as IMyProgrammableBlock;
             if (Me.CustomData.Length > 0)
             {
-                String[] p = Me.CustomData.Split('/');
-                subs = p[0].Split(',').ToList<String>();
-                state = p[1];
+                subs = Storage.Split(',').ToList<String>();
             }
             log.TryRun("Loaded broker with " + subs.Count() + " subs (" + String.Join(",", subs) + ")");
         }
         
         public void Main(string e)
         {
-            log.TryRun("New Event " + e);
-            String[] p = e.Split(':');
-            if (p.Count() != 2) log.TryRun("Event formatting error");
-            switch (p[0])
+            if(e.StartsWith("sub:"))
             {
-                case "sub":
-                    log.TryRun("New sub " + p[1]);
-                    subs.Add(p[1]);
-                    break;
-                default:
-                    handleEvent(p[0], p[1]);
-                    break;
+                String sub = e.Split(':')[1];
+                log.TryRun("New sub " + sub);
+                subs.Add(sub);
+            } else
+            {
+                log.TryRun("New Event " + e);
+                handleEvent(e);
             }
         }
 
-        public void handleEvent(String lvl, String msg)
+        public void handleEvent(String inboundEvent)
         {
-            state = "TODO"; //Process lvl and msg
-            foreach (String s in subs)
+            List<String> outboundEvents = new List<String>();
+            switch(inboundEvent)
             {
-                IMyTerminalBlock block = GridTerminalSystem.GetBlockWithName(s);
-                if (block is IMyProgrammableBlock)
+                case "TODO":
+                    break;
+                default:
+                    outboundEvents.Add(inboundEvent);
+                    break;
+            }
+            foreach (String outboundEvent in outboundEvents) {
+                foreach (String s in subs)
                 {
-                    if((block as IMyProgrammableBlock).TryRun(state))
+                    IMyTerminalBlock block = GridTerminalSystem.GetBlockWithName(s);
+                    if (block is IMyProgrammableBlock)
                     {
-                        log.TryRun("Told " + s + " state " + state);
-                    } else
-                    {
-                        log.TryRun("Failed telling " + s + " state " + state);
+                        if ((block as IMyProgrammableBlock).TryRun(outboundEvent))
+                        {
+                            log.TryRun("Sent event " + outboundEvent + " to " + s);
+                        } else
+                        {
+                            log.TryRun("Couldn't send event " + outboundEvent + " to " + s);
+                        }
                     }
                 }
             }
@@ -75,7 +79,7 @@ namespace Broker
 
         public void Save()
         {
-            Me.CustomData = String.Join(",", subs) + "/" + state;
+            Me.CustomData = String.Join(",", subs);
         }
 #if DEBUG
     }
